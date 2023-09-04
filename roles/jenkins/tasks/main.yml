@@ -1,3 +1,4 @@
 - name: Include tasks
   ansible.builtin.include_tasks:
-  file: sjob.yml
+    file: sjob.yml
+  loop: "{{sjobs}}"
