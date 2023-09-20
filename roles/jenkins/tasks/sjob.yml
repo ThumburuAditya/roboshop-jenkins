@@ -1,12 +1,12 @@
-- name: Copy xml file
+- name: Copy Xml File
   ansible.builtin.template:
     src: sjob.xml
     dest: /tmp/test.xml
 
-- name: Create a jenkins job using basic authentication
+- name: Create Jenkins Jobs
   community.general.jenkins_job:
     config: "{{ lookup('file', '/tmp/test.xml') }}"
     name: "{{item.job_name}}"
     password: admin123
-    url: http://34.205.23.225:8080/
+    url: http://172.31.87.210:8080
     user: admin
