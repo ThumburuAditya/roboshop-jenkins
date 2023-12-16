@@ -20,6 +20,8 @@ def call() {
             stage('unit test cases') {
                 steps {
                     sh 'echo unit tests'
+                    //sh 'npm test'
+
                 }
             }
             stage('checkmarx sast scan') {
