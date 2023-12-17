@@ -10,30 +10,57 @@ def call() {
         options {
             ansiColor('xterm')
         }
+
+        environment {
+            NEXUS = credentials('NEXUS')
+        }
+
         stages {
 
-            stage('code quality') {
+            stage('Code Quality') {
                 steps {
-                    // sh 'sonar-scanner -Dsonar.projectKey=${component} -Dsonar.host.url=http://172.31.42.130:9000 -Dsonar.login=admin -Dsonar.password=admin123 -Dsonar.qualitygate.wait=true'
-                    sh 'echo Code quality'
+//          sh 'ls -l'
+//          sh 'sonar-scanner -Dsonar.projectKey=${component} -Dsonar.host.url=http://172.31.8.27:9000 -Dsonar.login=admin -Dsonar.password=admin123 -Dsonar.qualitygate.wait=true'
+                    sh 'echo Code Quality'
                 }
             }
-            stage('unit test cases') {
+
+            stage('Unit Test Cases') {
                 steps {
-                    sh 'echo unit tests'
+                    sh 'echo Unit tests'
                     //sh 'python3.6 -m unittest'
                 }
             }
-            stage('checkmarx sast scan') {
+
+            stage('CheckMarx SAST Scan') {
                 steps {
-                    sh 'echo sast scan'
+                    sh 'echo Checkmarx Scan'
                 }
             }
-            stage('checkmarx SCA scan') {
+
+            stage('CheckMarx SCA Scan') {
                 steps {
-                    sh 'echo SCA scan'
+                    sh 'echo Checkmarx SCA Scan'
                 }
             }
+
+            stage('Release Application') {
+                when {
+                    expression {
+                        env.TAG_NAME ==~ ".*"
+                    }
+                }
+                steps {
+                    sh 'echo $TAG_NAME >VERSION'
+                    sh 'zip -r ${component}-${TAG_NAME}.zip *.ini *.py *.txt VERSION ${schema_dir}'
+                    sh 'curl -f -v -u ${NEXUS_USR}:${NEXUS_PSW} --upload-file ${component}-${TAG_NAME}.zip http://172.31.82.149:8081/repository/${component}/${component}-${TAG_NAME}.zip'
+                    //sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 633788536644.dkr.ecr.us-east-1.amazonaws.com'
+                    //sh 'docker build -t 633788536644.dkr.ecr.us-east-1.amazonaws.com/${component}:${TAG_NAME} .'
+                    //sh 'docker push 633788536644.dkr.ecr.us-east-1.amazonaws.com/${component}:${TAG_NAME}'
+                }
+            }
+
+
         }
 
         post {
